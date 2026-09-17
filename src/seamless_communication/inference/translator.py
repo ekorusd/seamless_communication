@@ -110,7 +110,7 @@ class Translator(nn.Module):
         if device == torch.device("cpu"):
             dtype = torch.float32
 
-        self.model = load_unity_model(model_name_or_card, device=device, dtype=dtype)
+        self.model = load_unity_model(model_name_or_card, device=torch.device(device), dtype=dtype)
         self.model.eval()
         assert isinstance(self.model, UnitYModel)
 
@@ -132,13 +132,13 @@ class Translator(nn.Module):
         self.apply_mintox = apply_mintox
 
         self.device = device
-        self.decode_audio = AudioDecoder(dtype=torch.float32, device=device)
+        self.decode_audio = AudioDecoder(dtype=torch.float32, device=torch.device(device))
         self.convert_to_fbank = WaveformToFbankConverter(
             num_mel_bins=80,
             waveform_scale=2**15,
             channel_last=True,
             standardize=True,
-            device=device,
+            device=torch.device(device),
             dtype=dtype,
         )
         self.collate = Collater(
@@ -149,7 +149,7 @@ class Translator(nn.Module):
             output_modality is None or output_modality == Modality.SPEECH
         ):
             self.vocoder = load_vocoder_model(
-                vocoder_name_or_card, device=device, dtype=dtype
+                vocoder_name_or_card, device=torch.device(device), dtype=dtype
             )
             self.vocoder.eval()
 
